@@ -22,7 +22,9 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       }
 
       if (session.user) {
+        session.user.name = token.name;
         session.user.email = token.email as string;
+        session.user.image = token.image as string;
       }
 
       return session;
@@ -37,7 +39,9 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
 
       if (!existingUser) return token;
 
+      token.name = existingUser.name;
       token.email = existingUser.email;
+      token.image = existingUser.image;
 
       return token;
     },

@@ -1,6 +1,5 @@
 import {
   pgTable,
-  uuid,
   varchar,
   text,
   timestamp,
@@ -21,11 +20,15 @@ export const bloodTypeEnum = pgEnum("bloodType", [
 ]);
 
 // Users Table
-export const users = pgTable("users", {
-  id: uuid("id").primaryKey().defaultRandom(),
-  email: varchar("email", { length: 255 }).unique(),
-  password: varchar("password", { length: 255 }),
-  createdAt: timestamp("created_at").defaultNow(),
+export const users = pgTable("user", {
+  id: text("id")
+    .primaryKey()
+    .$defaultFn(() => crypto.randomUUID()),
+  name: text("name"),
+  email: text("email").unique(),
+  emailVerified: timestamp("emailVerified", { mode: "date" }),
+  image: text("image"),
+  password: text("password"),
 });
 
 // export const userRelations = relations(users, ({ one }) => ({
@@ -33,9 +36,11 @@ export const users = pgTable("users", {
 // }));
 
 // Profiles Table
-export const profiles = pgTable("profiles", {
-  id: uuid("id").primaryKey().defaultRandom(),
-  userId: uuid("user_id")
+export const profiles = pgTable("profile", {
+  id: text("id")
+    .primaryKey()
+    .$defaultFn(() => crypto.randomUUID()),
+  userId: text("user_id")
     .notNull()
     .references(() => users.id, { onDelete: "cascade" }),
   fullName: varchar("full_name", { length: 255 }),
@@ -45,7 +50,6 @@ export const profiles = pgTable("profiles", {
   weight: real("weight"),
   bloodType: bloodTypeEnum(),
   medicalHistory: text("medical_history"),
-  createdAt: timestamp("created_at").defaultNow(),
 });
 
 // export const profilesRelations = relations(profiles, ({ one, many }) => ({
@@ -57,15 +61,16 @@ export const profiles = pgTable("profiles", {
 // }));
 
 // Hospitals Table
-export const hospitals = pgTable("hospitals", {
-  id: uuid("id").primaryKey().defaultRandom(),
-  profileId: uuid("profile_id")
+export const hospitals = pgTable("hospital", {
+  id: text("id")
+    .primaryKey()
+    .$defaultFn(() => crypto.randomUUID()),
+  profileId: text("profile_id")
     .notNull()
     .references(() => profiles.id, { onDelete: "cascade" }),
   name: varchar("name", { length: 255 }),
   address: text("address"),
   hotline: varchar("hotline", { length: 50 }),
-  createdAt: timestamp("created_at").defaultNow(),
 });
 
 // export const hospitalsRelations = relations(hospitals, ({ one, many }) => ({
@@ -77,9 +82,11 @@ export const hospitals = pgTable("hospitals", {
 // }));
 
 // Visit Notes Table
-export const visitNotes = pgTable("visit_notes", {
-  id: uuid("id").primaryKey().defaultRandom(),
-  hospitalId: uuid("hospital_id")
+export const visitNotes = pgTable("visit_note", {
+  id: text("id")
+    .primaryKey()
+    .$defaultFn(() => crypto.randomUUID()),
+  hospitalId: text("hospital_id")
     .notNull()
     .references(() => hospitals.id, { onDelete: "cascade" }),
   visitDate: date("visit_date"),
@@ -96,13 +103,14 @@ export const visitNotes = pgTable("visit_notes", {
 // }));
 
 // Visit Images Table
-export const visitImages = pgTable("visit_images", {
-  id: uuid("id").primaryKey().defaultRandom(),
-  noteId: uuid("note_id")
+export const visitImages = pgTable("visit_image", {
+  id: text("id")
+    .primaryKey()
+    .$defaultFn(() => crypto.randomUUID()),
+  noteId: text("note_id")
     .notNull()
     .references(() => visitNotes.id, { onDelete: "cascade" }),
   imageUrl: text("image_url"),
-  uploadedAt: timestamp("uploaded_at").defaultNow(),
 });
 
 // export const visitImagesRelations = relations(visitImages, ({ one }) => ({

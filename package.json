@@ -8,7 +8,7 @@
     "db:generate": "drizzle-kit generate --config drizzle.config.ts",
     "db:migrate": "drizzle-kit migrate --config  drizzle.config.ts",
     "db:push": "drizzle-kit push",
-    "seed": "npx tsx ./server/modifyData/seed.ts"
+    "seed": "npx tsx ./server/modifyData/seed.ts" 
   },
   "dependencies": {
     "@types/node": "^20.10.5",

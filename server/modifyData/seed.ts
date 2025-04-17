@@ -27,7 +27,13 @@ async function seedData() {
     users: {
       count: 10,
       columns: {
+        name: f.firstName(),
         email: f.email(),
+        emailVerified: f.timestamp(),
+        image: f.default({
+          defaultValue:
+            "https://images.prismic.io/noteplan-landing-cms/Zl70u5m069VX1cHY_TechnicalDesignDocumentTemplate.png?auto=format,compress",
+        }),
         password: f.default({ defaultValue: hashedPassword }),
       },
       with: {
@@ -73,7 +79,6 @@ async function seedData() {
         name: f.companyName(),
         address: f.streetAddress(),
         hotline: f.phoneNumber({ template: "0#########" }),
-        createdAt: f.timestamp(),
       },
       with: {
         visitNotes: [
@@ -86,7 +91,6 @@ async function seedData() {
       columns: {
         visitDate: f.date(),
         notes: f.loremIpsum(),
-        createdAt: f.timestamp(),
       },
       with: {
         visitImages: [
@@ -101,7 +105,6 @@ async function seedData() {
           defaultValue:
             "https://images.prismic.io/noteplan-landing-cms/Zl70u5m069VX1cHY_TechnicalDesignDocumentTemplate.png?auto=format,compress",
         }),
-        uploadedAt: f.timestamp(),
       },
     },
   }));
