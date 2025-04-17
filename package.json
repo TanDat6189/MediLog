@@ -4,27 +4,40 @@
     "dev": "next dev --turbo",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "db:generate": "drizzle-kit generate --config drizzle.config.ts",
+    "db:migrate": "drizzle-kit migrate --config  drizzle.config.ts",
+    "db:push": "drizzle-kit push",
+    "seed": "npx tsx ./server/modifyData/seed.ts"
   },
   "dependencies": {
     "@types/node": "^20.10.5",
     "@types/react": "^18.2.45",
     "@types/react-dom": "^18.2.18",
+    "@auth/drizzle-adapter": "^0.9.0",
     "bcrypt-ts": "^5.0.0",
-    "drizzle-orm": "^0.29.2",
+    "dotenv": "^16.5.0",
+    "drizzle-orm": "^0.41.0",
+    "drizzle-seed": "^0.3.1",
     "geist": "^1.2.0",
     "next": "^14.0.4",
-    "next-auth": "5.0.0-beta.4",
+    "next-auth": "^5.0.0-beta.16",
+    "next-safe-action": "^6.2.0",
+    "pg": "^8.14.1",
     "postgres": "^3.4.3",
     "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "react-dom": "^18.2.0",
+    "zod": "^3.24.2"
   },
   "devDependencies": {
+    "@types/pg": "^8.11.12",
     "autoprefixer": "^10.4.16",
+    "bcryptjs": "^3.0.2",
+    "drizzle-kit": "^0.30.6",
     "eslint": "8.56.0",
     "eslint-config-next": "^14.0.4",
     "postcss": "^8.4.32",
     "tailwindcss": "^3.4.0",
-    "typescript": "^5.3.3"
+    "ts-node": "^10.9.2"
   }
 }

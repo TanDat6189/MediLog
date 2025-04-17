@@ -1,0 +1,1 @@
+ALTER TYPE "public"."bloodType" ADD VALUE 'unknown';
