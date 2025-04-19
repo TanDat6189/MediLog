@@ -63,17 +63,9 @@ export default function RootLayout({
                   </SidebarMenuItem>
                   <SidebarMenuItem>
                     <SidebarMenuButton asChild>
-                      <a href="/dashboard/note">
+                      <a href="/dashboard/hospital">
                         <BarChart3 className="h-5 w-5" />
                         <span>My Note</span>
-                      </a>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                  <SidebarMenuItem>
-                    <SidebarMenuButton asChild>
-                      <a href="/dashboard/chatbot">
-                        <BarChart3 className="h-5 w-5" />
-                        <span>Chatbot</span>
                       </a>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
