@@ -1,1 +1,0 @@
-ALTER TABLE "profiles" ALTER COLUMN "height" SET DATA TYPE integer;

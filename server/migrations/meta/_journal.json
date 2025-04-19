@@ -5,57 +5,22 @@
     {
       "idx": 0,
       "version": "7",
-      "when": 1744646129851,
-      "tag": "0000_youthful_ghost_rider",
+      "when": 1744906860899,
+      "tag": "0000_daily_hydra",
       "breakpoints": true
     },
     {
       "idx": 1,
       "version": "7",
-      "when": 1744695887087,
-      "tag": "0001_concerned_vertigo",
+      "when": 1744907067949,
+      "tag": "0001_dazzling_ego",
       "breakpoints": true
     },
     {
       "idx": 2,
       "version": "7",
-      "when": 1744697529349,
-      "tag": "0002_gifted_flatman",
-      "breakpoints": true
-    },
-    {
-      "idx": 3,
-      "version": "7",
-      "when": 1744732858004,
-      "tag": "0003_petite_skrulls",
-      "breakpoints": true
-    },
-    {
-      "idx": 4,
-      "version": "7",
-      "when": 1744805447000,
-      "tag": "0004_lonely_sally_floyd",
-      "breakpoints": true
-    },
-    {
-      "idx": 5,
-      "version": "7",
-      "when": 1744817329068,
-      "tag": "0005_strong_ender_wiggin",
-      "breakpoints": true
-    },
-    {
-      "idx": 6,
-      "version": "7",
-      "when": 1744901104674,
-      "tag": "0006_previous_toxin",
-      "breakpoints": true
-    },
-    {
-      "idx": 7,
-      "version": "7",
-      "when": 1744901553965,
-      "tag": "0007_busy_nick_fury",
+      "when": 1744915228231,
+      "tag": "0002_gigantic_darkstar",
       "breakpoints": true
     }
   ]

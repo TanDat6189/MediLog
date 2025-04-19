@@ -6,7 +6,7 @@ import bcrypt from "bcryptjs";
 import { reset } from "drizzle-seed";
 import { seed } from "drizzle-seed";
 
-import * as schema from "server/schema";
+import * as schema from "@/server/schema";
 
 const sql = postgres(process.env.DATABASE_URL!);
 const db = drizzle(sql);
@@ -115,7 +115,7 @@ async function seedData() {
 async function main() {
   try {
     await resetData();
-    await seedData();
+    // await seedData();
     await sql.end();
     console.log("✅ Database reset and seed completed successfully!");
   } catch (error) {
