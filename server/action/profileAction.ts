@@ -33,8 +33,18 @@ export async function createProfile(
   });
 }
 
-export async function getProfile(userId: string) {
+export async function getProfileById(Id: string) {
+  return await db.query.profiles.findFirst({
+    where: eq(profiles.id, Id),
+  });
+}
+
+export async function getProfileByUserId(userId: string) {
   return await db.query.profiles.findFirst({
     where: eq(profiles.userId, userId),
   });
+}
+
+export async function updateProfile(profileId: string, updateData: any) {
+  await db.update(profiles).set(updateData).where(eq(profiles.id, profileId));
 }

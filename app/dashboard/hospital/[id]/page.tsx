@@ -314,14 +314,14 @@ export default function HospitalDetailPage() {
           <Button
             variant="outline"
             size="sm"
-            onClick={() => router.push("/dashboard")}
+            onClick={() => router.push("/dashboard/hospital")}
           >
             <ArrowLeft className="mr-2 h-4 w-4" />
             Back
           </Button>
           <Button size="sm" onClick={() => setIsCreateModalOpen(true)}>
             <Plus className="mr-2 h-4 w-4" />
-            Create New Entry
+            Create a new visit note
           </Button>
         </div>
       </div>
@@ -330,7 +330,7 @@ export default function HospitalDetailPage() {
 
       {/* Entries List */}
       <div className="space-y-6">
-        <h2 className="text-xl font-semibold">Entries</h2>
+        <h2 className="text-xl font-semibold">Visit note</h2>
 
         {entries.length === 0 ? (
           <Card>

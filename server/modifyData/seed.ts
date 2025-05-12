@@ -55,7 +55,7 @@ async function seedData() {
           precision: 1,
         }),
         bloodType: f.valuesFromArray({ values: bloodType }),
-        medicalHistory: f.loremIpsum(),
+        medicalHistory: f.loremIpsum({ sentencesCount: 10 }),
       },
       with: {
         hospitals: [
@@ -90,7 +90,7 @@ async function seedData() {
     visitNotes: {
       columns: {
         visitDate: f.date(),
-        notes: f.loremIpsum(),
+        notes: f.loremIpsum({ sentencesCount: 5 }),
       },
       with: {
         visitImages: [
@@ -115,7 +115,7 @@ async function seedData() {
 async function main() {
   try {
     await resetData();
-    // await seedData();
+    await seedData();
     await sql.end();
     console.log("✅ Database reset and seed completed successfully!");
   } catch (error) {
