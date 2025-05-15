@@ -2,25 +2,28 @@ import { eq } from "drizzle-orm";
 
 import { db } from "../connectDB";
 import { hospitals } from "../schema";
-import { profiles } from "../schema";
 
-export async function getHospitalListByUserId(userId: string) {
+export async function getHospitalListById(profileId: string) {
   return await db.query.hospitals.findMany({
-    with: {
-      profiles: {
-        where: (profiles, { eq }) => eq(profiles.userId, userId),
-      },
-    },
+    where: eq(hospitals.profileId, profileId),
   });
 }
 
 export async function updateHospital(hospitalId: string, updateData: any) {
-  await db
+  return await db
     .update(hospitals)
     .set(updateData)
-    .where(eq(hospitals.id, hospitalId));
+    .where(eq(hospitals.id, hospitalId))
+    .returning();
 }
 
-export async function deleteHospitalById(hospitalId: string) {
-  await db.delete(hospitals).where(eq(hospitals.id, hospitalId));
+export async function deleteHospital(hospitalId: string) {
+  return await db
+    .delete(hospitals)
+    .where(eq(hospitals.id, hospitalId))
+    .returning({ deletedId: hospitals.id });
+}
+
+export async function createHospital(data: any) {
+  return await db.insert(hospitals).values(data).returning();
 }

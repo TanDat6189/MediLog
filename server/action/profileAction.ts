@@ -33,6 +33,18 @@ export async function createProfile(
   });
 }
 
+export async function getProfileIdByUserId(userId: string) {
+  const result = await db
+    .select({
+      field1: profiles.id,
+    })
+    .from(profiles)
+    .where(eq(profiles.userId, userId));
+
+  const { field1 } = result[0];
+  return field1;
+}
+
 export async function getProfileById(Id: string) {
   return await db.query.profiles.findFirst({
     where: eq(profiles.id, Id),

@@ -15,37 +15,47 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 
-type CardItem = {
-  id: string;
-  name: string;
-  description: string;
-  hotline: string;
-};
+import { CardItem } from "@/types/CardItem";
 
 type CreateCardModelProps = {
   isCreateModalOpen: boolean;
   setIsCreateModalOpen: React.Dispatch<React.SetStateAction<boolean>>;
   setCards: React.Dispatch<React.SetStateAction<CardItem[]>>;
+  userId: any;
 };
 
 export default function CreateCardModel({
   isCreateModalOpen,
   setIsCreateModalOpen,
   setCards,
+  userId,
 }: CreateCardModelProps) {
   const [newCard, setNewCard] = useState({
     name: "",
-    description: "",
+    address: "",
     hotline: "",
   });
 
   // Create new card
-  const handleCreateCard = (e) => {
+  const handleCreateCard = async (e) => {
     e.preventDefault();
     const id = Math.random().toString(36).substring(2, 9);
-    setCards((prev) => [...prev, { id, ...newCard }]);
-    setNewCard({ name: "", description: "", hotline: "" });
-    setIsCreateModalOpen(false);
+
+    const data = { id, userId, ...newCard };
+
+    const res = await fetch(`/api/hospital/`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(data),
+    });
+
+    const result = await res.json();
+
+    if (result) {
+      setCards((prev) => [...prev, result.data[0]]);
+      setNewCard({ name: "", address: "", hotline: "" });
+      setIsCreateModalOpen(false);
+    }
   };
 
   // Handle form input changes for new card
@@ -79,11 +89,11 @@ export default function CreateCardModel({
               />
             </div>
             <div className="grid gap-2">
-              <Label htmlFor="description">Description</Label>
+              <Label htmlFor="address">Address</Label>
               <Textarea
-                id="description"
-                name="description"
-                value={newCard.description}
+                id="address"
+                name="address"
+                value={newCard.address}
                 onChange={handleNewCardChange}
                 required
               />

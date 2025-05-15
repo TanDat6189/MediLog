@@ -12,54 +12,34 @@ import ActionBar from "@/components/hospital/ActionBar";
 import CardList from "@/components/hospital/CardList";
 import CreateCardModel from "@/components/hospital/CreateCardModel";
 
-// Sample card data
-const initialCards = [
-  {
-    id: "1",
-    name: "Customer Support",
-    description:
-      "24/7 customer support for all product inquiries and technical issues.",
-    hotline: "1-800-123-4567",
-  },
-  {
-    id: "2",
-    name: "Sales Department",
-    description:
-      "Contact our sales team for quotes, bulk orders, and special pricing.",
-    hotline: "1-800-987-6543",
-  },
-  {
-    id: "3",
-    name: "Technical Support",
-    description:
-      "Get help with product installation, troubleshooting, and maintenance.",
-    hotline: "1-800-456-7890",
-  },
-  {
-    id: "4",
-    name: "Billing Department",
-    description:
-      "Questions about your invoice, payment methods, or account status.",
-    hotline: "1-800-789-0123",
-  },
-];
+import { CardItem } from "@/types/CardItem";
 
 export default function HospitalPage() {
   const { data: session, status } = useSession();
 
-  const [cards, setCards] = useState(initialCards);
+  const [cards, setCards] = useState<CardItem[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
 
-  useEffect(() => {}, []);
+  useEffect(() => {
+    if (session?.user?.id) {
+      fetch(`/api/hospital?userId=${session.user.id}`)
+        .then((res) => res.json())
+        .then((data) => setCards(data));
+    }
+  }, [session?.user?.id]);
 
   // Filter cards based on search query
   const filteredCards = cards.filter(
     (card) =>
       card.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      card.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      card.address.toLowerCase().includes(searchQuery.toLowerCase()) ||
       card.hotline.toLowerCase().includes(searchQuery.toLowerCase())
   );
+
+  if (status === "loading") {
+    return <div>Loading...</div>;
+  }
 
   return (
     <div className="flex-1 p-8">
@@ -86,6 +66,7 @@ export default function HospitalPage() {
         isCreateModalOpen={isCreateModalOpen}
         setIsCreateModalOpen={setIsCreateModalOpen}
         setCards={setCards}
+        userId={session?.user?.id}
       />
     </div>
   );

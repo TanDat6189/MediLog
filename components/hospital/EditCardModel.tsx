@@ -13,18 +13,14 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 
-type CardItem = {
-  id: string;
-  name: string;
-  description: string;
-  hotline: string;
-};
+import { CardItem } from "@/types/CardItem";
 
 type EditCardModelProps = {
   currentCard: CardItem;
   isEditModalOpen: boolean;
   setIsEditModalOpen: React.Dispatch<React.SetStateAction<boolean>>;
   setCurrentCard: React.Dispatch<React.SetStateAction<CardItem>>;
+  setCards: React.Dispatch<React.SetStateAction<CardItem[]>>;
 };
 
 export default function EditCardModel({
@@ -32,6 +28,7 @@ export default function EditCardModel({
   isEditModalOpen,
   setIsEditModalOpen,
   setCurrentCard,
+  setCards,
 }: EditCardModelProps) {
   // Handle form input changes for editing card
   const handleEditCardChange = (e) => {
@@ -43,12 +40,25 @@ export default function EditCardModel({
   };
 
   // Edit card
-  const handleEditCard = (e) => {
-    // e.preventDefault();
-    // setCards((prev) =>
-    //   prev.map((card) => (card.id === currentCard.id ? currentCard : card))
-    // );
-    // setIsEditModalOpen(false);
+  const handleEditCard = async (e) => {
+    e.preventDefault();
+
+    const res = await fetch(`/api/hospital/`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(currentCard),
+    });
+
+    const result = await res.json();
+
+    if (result) {
+      setCards((prev) =>
+        prev.map((card) =>
+          card.id === result.data[0].id ? result.data[0] : card
+        )
+      );
+      setIsEditModalOpen(false);
+    }
   };
 
   return (
@@ -75,11 +85,11 @@ export default function EditCardModel({
                 />
               </div>
               <div className="grid gap-2">
-                <Label htmlFor="edit-description">Description</Label>
+                <Label htmlFor="edit-address">Address</Label>
                 <Textarea
-                  id="edit-description"
-                  name="description"
-                  value={currentCard.description}
+                  id="edit-address"
+                  name="address"
+                  value={currentCard.address}
                   onChange={handleEditCardChange}
                   required
                 />
