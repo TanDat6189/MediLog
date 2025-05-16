@@ -46,86 +46,17 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Separator } from "@/components/ui/separator";
 
-// Sample card data
-const initialCards = [
-  {
-    id: "1",
-    name: "Customer Support",
-    description:
-      "24/7 customer support for all product inquiries and technical issues.",
-    hotline: "1-800-123-4567",
-  },
-  {
-    id: "2",
-    name: "Sales Department",
-    description:
-      "Contact our sales team for quotes, bulk orders, and special pricing.",
-    hotline: "1-800-987-6543",
-  },
-  {
-    id: "3",
-    name: "Technical Support",
-    description:
-      "Get help with product installation, troubleshooting, and maintenance.",
-    hotline: "1-800-456-7890",
-  },
-  {
-    id: "4",
-    name: "Billing Department",
-    description:
-      "Questions about your invoice, payment methods, or account status.",
-    hotline: "1-800-789-0123",
-  },
-];
+import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 
-// Sample entries data
-const initialEntries = [
-  {
-    id: "e1",
-    cardId: "1",
-    visitDate: "2025-04-19",
-    notes:
-      "Discussed the new customer support workflow and implemented changes to the ticketing system.",
-    images: [
-      "/placeholder.svg?height=400&width=600",
-      "/placeholder.svg?height=400&width=600",
-    ],
-  },
-  {
-    id: "e2",
-    cardId: "1",
-    visitDate: "2025-03-15",
-    notes:
-      "Quarterly review of support metrics. Response times have improved by 15% since last quarter.",
-    images: ["/placeholder.svg?height=400&width=600"],
-  },
-  {
-    id: "e3",
-    cardId: "2",
-    visitDate: "2025-04-10",
-    notes:
-      "Sales team meeting to discuss Q2 targets and strategies for new product launch.",
-    images: [
-      "/placeholder.svg?height=400&width=600",
-      "/placeholder.svg?height=400&width=600",
-    ],
-  },
-  {
-    id: "e4",
-    cardId: "3",
-    visitDate: "2025-04-05",
-    notes:
-      "Technical support training session for the new product line. All team members now certified.",
-    images: ["/placeholder.svg?height=400&width=600"],
-  },
-];
+import { CardItem } from "@/types/CardItem";
+import { VisitNoteItem } from "@/types/VisitNoteItem";
+import { CreateVisitNote } from "@/types/CreateVisitNote";
 
 export default function HospitalDetailPage() {
   const params = useParams();
-  console.log(params);
   const router = useRouter();
-  const [card, setCard] = useState(null);
-  const [entries, setEntries] = useState([]);
+  const [card, setCard] = useState<CardItem | null>(null);
+  const [entries, setEntries] = useState<VisitNoteItem[]>([]);
   const [loading, setLoading] = useState(true);
 
   // Modal states
@@ -133,112 +64,250 @@ export default function HospitalDetailPage() {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isImageViewerOpen, setIsImageViewerOpen] = useState(false);
   const [selectedImage, setSelectedImage] = useState("");
-  const [currentEntry, setCurrentEntry] = useState(null);
+  const [currentEntry, setCurrentEntry] = useState<VisitNoteItem>({
+    id: "",
+    hospitalId: "",
+    visitDate: "",
+    notes: "",
+    createdAt: "",
+    images: [""],
+  });
 
   // Form state
-  const [newEntry, setNewEntry] = useState({
+  const [newEntry, setNewEntry] = useState<{
+    visitDate: string;
+    notes: string;
+    images: string[];
+  }>({
     visitDate: format(new Date(), "yyyy-MM-dd"),
     notes: "",
     images: [],
   });
 
   // File upload state
-  const [selectedFiles, setSelectedFiles] = useState([]);
-  const [editSelectedFiles, setEditSelectedFiles] = useState([]);
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+  const [editSelectedFiles, setEditSelectedFiles] = useState<File[]>([]);
 
   useEffect(() => {
-    // In a real app, you would fetch this data from an API
-    const foundCard = initialCards.find((c) => c.id === params.id);
-    const cardEntries = initialEntries.filter((e) => e.cardId === params.id);
+    fetch(`/api/hospital/${params.id}`, {
+      method: "GET",
+    })
+      .then((res) => res.json())
+      .then((data) => setCard(data));
 
-    if (foundCard) {
-      setCard(foundCard);
-      setEntries(cardEntries);
-    }
+    fetch(`/api/visitNote?hospitalId=${params.id}`)
+      .then((res) => res.json())
+      .then((data) => setEntries(data));
 
     setLoading(false);
   }, [params.id]);
 
-  // Handle form input changes for new entry
-  const handleNewEntryChange = (e) => {
-    // const { name, value } = e.target;
-    // setNewEntry((prev) => ({
-    //   ...prev,
-    //   [name]: value,
-    // }));
+  // Create new entry
+  const handleCreateEntry = async (e) => {
+    e.preventDefault();
+    const id = `e${Math.random().toString(36).substring(2, 9)}`;
+    const newCreateVisitNote: CreateVisitNote = {
+      id,
+      hospitalId: params.id as string,
+      visitDate: newEntry.visitDate,
+      notes: newEntry.notes,
+    };
+
+    const resVisitNote = await fetch(`/api/visitNote`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(newCreateVisitNote),
+    });
+    const resultVisitNote = await resVisitNote.json();
+
+    const formData = new FormData();
+    selectedFiles.forEach((file) => {
+      formData.append("images", file);
+    });
+    formData.append("noteId", id);
+
+    const resVisitImage = await fetch(`/api/upload`, {
+      method: "POST",
+      body: formData,
+    });
+    const resultVisitImage = await resVisitImage.json();
+
+    if (resultVisitNote.data[0] && resultVisitImage.data) {
+      const newEntryWithId: VisitNoteItem = {
+        ...resultVisitNote.data[0],
+        images: resultVisitImage.data,
+      };
+
+      setEntries((prev) => [...prev, newEntryWithId]);
+    } else {
+      const newEntryWithId: VisitNoteItem = {
+        ...resultVisitNote.data[0],
+        images: null,
+      };
+
+      setEntries((prev) => [...prev, newEntryWithId]);
+    }
+
+    setNewEntry({
+      visitDate: format(new Date(), "yyyy-MM-dd"),
+      notes: "",
+      images: [],
+    });
+    setSelectedFiles([]);
+    setIsCreateModalOpen(false);
   };
 
-  // Handle form input changes for editing entry
-  const handleEditEntryChange = (e) => {
-    // const { name, value } = e.target;
-    // setCurrentEntry((prev) => ({
-    //   ...prev,
-    //   [name]: value,
-    // }));
+  // Handle form input changes for new entry
+  const handleNewEntryChange = (e) => {
+    const { name, value } = e.target;
+    setNewEntry((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
   };
 
   // Handle file selection for new entry
   const handleFileSelect = (e) => {
-    // if (e.target.files) {
-    //   const filesArray = Array.from(e.target.files);
-    //   setSelectedFiles(filesArray);
-    //   // In a real app, you would upload these files to a server
-    //   // For this demo, we'll create object URLs to preview them
-    //   const imageUrls = filesArray.map((file) => URL.createObjectURL(file));
-    //   setNewEntry((prev) => ({
-    //     ...prev,
-    //     images: imageUrls,
-    //   }));
-    // }
+    if (e.target.files) {
+      const filesArray = Array.from(e.target.files as File[]);
+      setSelectedFiles(filesArray);
+      // In a real app, you would upload these files to a server
+      // For this demo, we'll create object URLs to preview them
+      const imageUrls = filesArray.map((file) => URL.createObjectURL(file));
+      setNewEntry((prev) => ({
+        ...prev,
+        images: imageUrls,
+      }));
+    }
+  };
+
+  // Remove image from new entry
+  const removeImage = (index) => {
+    setNewEntry((prev) => ({
+      ...prev,
+      images: prev.images.filter((_, i) => i !== index),
+    }));
+    setSelectedFiles((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  // Edit entry
+  const handleEditEntry = async (e) => {
+    e.preventDefault();
+
+    const dataObj = {
+      id: currentEntry.id,
+      profileId: currentEntry.hospitalId,
+      visitDate: currentEntry.visitDate,
+      notes: currentEntry.notes,
+    };
+
+    const resVisitNote = await fetch(`/api/visitNote`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(dataObj),
+    });
+    const resultVisitNote = await resVisitNote.json();
+
+    const formData = new FormData();
+    editSelectedFiles.forEach((file) => {
+      formData.append("images", file);
+    });
+    formData.append("noteId", currentEntry.id);
+
+    const resVisitImage = await fetch(`/api/upload`, {
+      method: "POST",
+      body: formData,
+    });
+    const resultVisitImage = await resVisitImage.json();
+    console.log(resultVisitImage);
+
+    if (resultVisitImage.data) {
+      setEntries((prev) =>
+        prev.map((entry) =>
+          entry.id === currentEntry.id
+            ? {
+                ...currentEntry,
+                ...resultVisitNote.data[0],
+                images: [
+                  ...currentEntry?.images?.slice(
+                    0,
+                    currentEntry.images.length - editSelectedFiles.length
+                  ),
+                  ...resultVisitImage.data,
+                ],
+              }
+            : entry
+        )
+      );
+    } else {
+      setEntries((prev) =>
+        prev.map((entry) =>
+          entry.id === currentEntry.id
+            ? {
+                ...currentEntry,
+                ...resultVisitNote.data[0],
+              }
+            : entry
+        )
+      );
+    }
+
+    setIsEditModalOpen(false);
+    setEditSelectedFiles([]);
+  };
+
+  // Handle form input changes for editing entry
+  const handleEditEntryChange = (e) => {
+    const { name, value } = e.target;
+    setCurrentEntry((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
   };
 
   // Handle file selection for edit entry
   const handleEditFileSelect = (e) => {
-    // if (e.target.files) {
-    //   const filesArray = Array.from(e.target.files);
-    //   setEditSelectedFiles(filesArray);
-    //   // In a real app, you would upload these files to a server
-    //   // For this demo, we'll create object URLs to preview them
-    //   const imageUrls = filesArray.map((file) => URL.createObjectURL(file));
-    //   setCurrentEntry((prev) => ({
-    //     ...prev,
-    //     images: [...prev.images, ...imageUrls],
-    //   }));
-    // }
+    if (e.target.files) {
+      const filesArray = Array.from(e.target.files as File[]);
+      setEditSelectedFiles(filesArray);
+      // In a real app, you would upload these files to a server
+      // For this demo, we'll create object URLs to preview them
+      const imageUrls = filesArray.map((file) => URL.createObjectURL(file));
+      setCurrentEntry((prev) => ({
+        ...prev,
+        images: [...(prev.images ?? []), ...imageUrls],
+      }));
+    }
   };
 
-  // Create new entry
-  const handleCreateEntry = (e) => {
-    // e.preventDefault();
-    // const id = `e${Math.random().toString(36).substring(2, 9)}`;
-    // const newEntryWithId = {
-    //   id,
-    //   cardId: params.id,
-    //   ...newEntry,
-    // };
-    // setEntries((prev) => [...prev, newEntryWithId]);
-    // setNewEntry({
-    //   visitDate: format(new Date(), "yyyy-MM-dd"),
-    //   notes: "",
-    //   images: [],
-    // });
-    // setSelectedFiles([]);
-    // setIsCreateModalOpen(false);
-  };
-
-  // Edit entry
-  const handleEditEntry = (e) => {
-    // e.preventDefault();
-    // setEntries((prev) =>
-    //   prev.map((entry) => (entry.id === currentEntry.id ? currentEntry : entry))
-    // );
-    // setIsEditModalOpen(false);
-    // setEditSelectedFiles([]);
+  // Remove image from edit entry
+  const removeEditImage = async (index) => {
+    if (
+      currentEntry.images &&
+      index < currentEntry.images.length - editSelectedFiles.length
+    ) {
+      const res = await fetch(`/api/visitImage`, {
+        method: "POST",
+        body: JSON.stringify(currentEntry.images[index]),
+      });
+    } else {
+      editSelectedFiles.splice(currentEntry.images.length - index - 1, 1);
+    }
+    setCurrentEntry((prev) => ({
+      ...prev,
+      images: (prev.images ?? []).filter((_, i) => i !== index),
+    }));
   };
 
   // Delete entry
-  const handleDeleteEntry = (id) => {
-    // setEntries((prev) => prev.filter((entry) => entry.id !== id));
+  const handleDeleteEntry = async (id) => {
+    const res = await fetch(`/api/visitNote/${id}`, {
+      method: "DELETE",
+    });
+
+    if (res.ok) {
+      setEntries((prev) => prev.filter((entry) => entry.id !== id));
+    }
   };
 
   // Open edit modal with entry data
@@ -251,23 +320,6 @@ export default function HospitalDetailPage() {
   const openImageViewer = (imageUrl) => {
     setSelectedImage(imageUrl);
     setIsImageViewerOpen(true);
-  };
-
-  // Remove image from new entry
-  const removeImage = (index) => {
-    // setNewEntry((prev) => ({
-    //   ...prev,
-    //   images: prev.images.filter((_, i) => i !== index),
-    // }));
-    // setSelectedFiles((prev) => prev.filter((_, i) => i !== index));
-  };
-
-  // Remove image from edit entry
-  const removeEditImage = (index) => {
-    // setCurrentEntry((prev) => ({
-    //   ...prev,
-    //   images: prev.images.filter((_, i) => i !== index),
-    // }));
   };
 
   if (loading) {
@@ -307,7 +359,7 @@ export default function HospitalDetailPage() {
       <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-3xl font-bold">{card.name}</h1>
-          <p className="text-muted-foreground">{card.description}</p>
+          <p className="text-muted-foreground">{card.address}</p>
           <p className="mt-1 font-medium">Hotline: {card.hotline}</p>
         </div>
         <div className="flex gap-2">
@@ -352,7 +404,7 @@ export default function HospitalDetailPage() {
                   <div className="flex items-center">
                     <Calendar className="mr-2 h-4 w-4 text-muted-foreground" />
                     <CardTitle className="text-base font-medium">
-                      {format(new Date(entry.visitDate), "MMMM d, yyyy")}
+                      {format(new Date(entry.visitDate), "MMMM dd, yyyy")}
                     </CardTitle>
                   </div>
                 </CardHeader>
@@ -422,6 +474,9 @@ export default function HospitalDetailPage() {
 
       {/* Create Entry Modal */}
       <Dialog open={isCreateModalOpen} onOpenChange={setIsCreateModalOpen}>
+        <VisuallyHidden>
+          <DialogTitle>Thông báo</DialogTitle>
+        </VisuallyHidden>
         <DialogContent className="sm:max-w-[550px]">
           <DialogHeader>
             <DialogTitle>Create New Entry</DialogTitle>
@@ -501,6 +556,9 @@ export default function HospitalDetailPage() {
       {/* Edit Entry Modal */}
       {currentEntry && (
         <Dialog open={isEditModalOpen} onOpenChange={setIsEditModalOpen}>
+          <VisuallyHidden>
+            <DialogTitle>Thông báo</DialogTitle>
+          </VisuallyHidden>
           <DialogContent className="sm:max-w-[550px]">
             <DialogHeader>
               <DialogTitle>Edit Entry</DialogTitle>
@@ -542,7 +600,7 @@ export default function HospitalDetailPage() {
                     className="cursor-pointer"
                   />
 
-                  {currentEntry.images.length > 0 && (
+                  {currentEntry.images && currentEntry.images.length > 0 && (
                     <div className="mt-2 flex flex-wrap gap-2">
                       {currentEntry.images.map((image, index) => (
                         <div
@@ -579,6 +637,9 @@ export default function HospitalDetailPage() {
       {/* Image Viewer Modal */}
       <Dialog open={isImageViewerOpen} onOpenChange={setIsImageViewerOpen}>
         <DialogContent className="max-w-4xl p-0">
+          <VisuallyHidden>
+            <DialogTitle>Thông báo</DialogTitle>
+          </VisuallyHidden>
           <div className="relative flex h-[80vh] w-full items-center justify-center bg-black">
             <Button
               variant="ghost"

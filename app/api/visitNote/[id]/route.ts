@@ -1,9 +1,13 @@
+export const runtime = "nodejs";
+
 import { NextResponse } from "next/server";
 
-import {
-  getHospitalById,
-  deleteHospital,
-} from "@/server/action/hospitalAction";
+import { access, unlink } from "fs/promises";
+import { constants } from "fs";
+import { join } from "path";
+
+import { deleteVisitNote } from "@/server/action/visitNoteAction";
+import { getVisitImageListByVisitNoteId } from "@/server/action/visitImageAction";
 
 export async function DELETE(
   req: Request,
@@ -11,23 +15,44 @@ export async function DELETE(
 ) {
   const { id } = await params;
 
-  const hospitalId = id;
+  const visitNoteId = id;
 
   try {
-    if (!hospitalId) {
+    if (!visitNoteId) {
       return NextResponse.json({ error: "Missing Id" }, { status: 400 });
     }
 
-    const result = await deleteHospital(hospitalId);
+    const visitImageList = await getVisitImageListByVisitNoteId(visitNoteId);
 
-    if (!result) {
+    if (!visitImageList) {
+      return NextResponse.json(
+        { error: `VisitImage not found with visitNoteId: ${visitNoteId}` },
+        { status: 404 }
+      );
+    }
+
+    for (const item of visitImageList) {
+      const nameImage = item.imageUrl?.split("/").pop();
+      const tempPath = join(process.cwd(), "public/uploads", nameImage ?? "");
+
+      try {
+        await access(tempPath, constants.F_OK);
+        await unlink(tempPath);
+      } catch (err) {
+        console.warn(`File not found or cannot delete: ${tempPath}`);
+      }
+    }
+
+    const returningId = await deleteVisitNote(visitNoteId);
+
+    if (!returningId) {
       return NextResponse.json(
         { error: "Hospital not found after deleting" },
         { status: 404 }
       );
     }
 
-    return NextResponse.json({ success: true, data: result });
+    return NextResponse.json({ success: true, data: returningId });
   } catch (error) {
     console.error("Delete error:", error);
     return NextResponse.json(

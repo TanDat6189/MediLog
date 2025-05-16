@@ -9,6 +9,12 @@ export async function getHospitalListById(profileId: string) {
   });
 }
 
+export async function getHospitalById(id: string) {
+  return await db.query.hospitals.findFirst({
+    where: eq(hospitals.id, id),
+  });
+}
+
 export async function updateHospital(hospitalId: string, updateData: any) {
   return await db
     .update(hospitals)
