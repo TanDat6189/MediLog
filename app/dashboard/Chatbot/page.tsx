@@ -70,7 +70,7 @@ export default function Chatbot() {
     {
       id: "1",
       content:
-        "Hello! I'm your AI image assistant. Describe an image you'd like to see.",
+        "Hello! I'm your AI chatbot assistant. Describe your problems and I'll give you advices.",
       sender: "ai",
     },
   ]);
@@ -123,16 +123,6 @@ export default function Chatbot() {
     setMessages((prev) => [...prev, aiMessage]);
     setIsStreaming(true);
 
-    // Simulate AI response streaming
-    // await mockAIResponse(userMessage.content, (token) => {
-    //   setMessages((prev) =>
-    //     prev.map((msg) =>
-    //       msg.id === aiMessageId
-    //         ? { ...msg, content: msg.content + token }
-    //         : msg
-    //     )
-    //   );
-    // });
     await callPuterAI(userMessage.content, (token) => {
       setMessages((prev) =>
         prev.map((msg) =>
@@ -253,7 +243,7 @@ export default function Chatbot() {
           <CardContent className="border-t bg-background p-4">
             <form onSubmit={handleSubmit} className="flex space-x-2">
               <Input
-                placeholder="Describe an image you'd like to see..."
+                placeholder="Describe your current health condition..."
                 value={inputValue}
                 onChange={handleInputChange}
                 disabled={isLoading || isStreaming}
