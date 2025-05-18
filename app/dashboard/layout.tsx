@@ -75,9 +75,14 @@ export default function RootLayout({
                       label="Hospital"
                     />
                     <SidebarItem
-                      href="/dashboard"
+                      href="/dashboard/Chatbot"
                       icon={<Bot className="h-5 w-5" />}
                       label="Chatbot"
+                    />
+                    <SidebarItem
+                      href="/dashboard/ImageBot"
+                      icon={<Bot className="h-5 w-5" />}
+                      label="ImageBot"
                     />
                   </SidebarMenu>
                 </SidebarContent>
