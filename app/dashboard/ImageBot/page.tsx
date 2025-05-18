@@ -189,7 +189,10 @@ export default function Imagebot() {
                 </div>
                 {message.sender === "user" && (
                   <Avatar className="ml-2 h-8 w-8">
-                    <AvatarImage src="/placeholder.svg" alt="User" />
+                    <AvatarImage
+                      src="https://github.com/shadcn.png"
+                      alt="User"
+                    />
                     <AvatarFallback>U</AvatarFallback>
                   </Avatar>
                 )}

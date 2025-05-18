@@ -21,7 +21,7 @@ export const metadata = {
   metadataBase: new URL("https://nextjs-postgres-auth.vercel.app"),
 };
 
-import { FileUser, NotebookPen, Bot } from "lucide-react";
+import { FileUser, NotebookPen, Bot, BotMessageSquare } from "lucide-react";
 
 import {
   Sidebar,
@@ -76,7 +76,7 @@ export default function RootLayout({
                     />
                     <SidebarItem
                       href="/dashboard/Chatbot"
-                      icon={<Bot className="h-5 w-5" />}
+                      icon={<BotMessageSquare className="h-5 w-5" />}
                       label="Chatbot"
                     />
                     <SidebarItem
@@ -109,6 +109,8 @@ export default function RootLayout({
             </div>
           </SidebarProvider>
         </SessionProvider>
+
+        <script src="https://js.puter.com/v2/" defer></script>
       </body>
     </html>
   );
